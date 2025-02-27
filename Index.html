@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Unit Circle</title>
     <style>
-        /* General Styles */
         body {
             font-family: 'Poppins', sans-serif;
             text-align: center;
@@ -25,7 +24,6 @@
             opacity: 0.8;
         }
 
-        /* Canvas Styling */
         .canvas-container {
             display: flex;
             justify-content: center;
@@ -40,7 +38,6 @@
             box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
         }
 
-        /* Info Box Styling */
         #infoBox {
             margin-top: 20px;
             padding: 15px;
@@ -53,21 +50,14 @@
             transition: 0.3s ease-in-out;
         }
 
-        /* Hover Effects */
         canvas:hover {
             box-shadow: 0px 6px 15px rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
 <body>
-    <nav class="mainNav">
-        <u1>
-            <lq><a href="Asher.html">Asher</a></lq>
-        </u1>
-    </nav>
-
-    <h2>🌟 Interactive Unit Circle</h2>
-    <p>Click on any point to see its coordinates, angle, and radian value!</p>
+    <h2>Interactive Unit Circle</h2>
+    <p>Click on any point to see its coordinates, angle, and radian value</p>
     
     <div class="canvas-container">
         <canvas id="unitCircleCanvas" width="500" height="500"></canvas>
@@ -82,21 +72,19 @@
         const centerY = canvas.height / 2;
         const radius = 200;
         const points = [];
+        let selectedPoint = null;
 
-        // Major angles in degrees
-        const angles = [30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330];
+        const angles = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330];
 
         function drawCircle() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw unit circle
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
             ctx.strokeStyle = "#333";
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Draw x and y axes
             ctx.beginPath();
             ctx.moveTo(centerX, 0);
             ctx.lineTo(centerX, canvas.height);
@@ -105,9 +93,18 @@
             ctx.strokeStyle = "#555";
             ctx.stroke();
 
-            points.length = 0; // Clear previous points
+            const axisLabels = { 0: "0°, 360°", 90: "90°", 180: "180°", 270: "270°" };
+            for (let angle in axisLabels) {
+                let radian = (angle * Math.PI) / 180;
+                let x = centerX + radius * Math.cos(radian);
+                let y = centerY - radius * Math.sin(radian);
+                ctx.fillStyle = "black";
+                ctx.font = "14px Arial";
+                ctx.fillText(axisLabels[angle], x - 15, y + 5);
+            }
 
-            // Draw and label points
+            points.length = 0;
+
             angles.forEach(angle => {
                 let radian = (angle * Math.PI) / 180;
                 let x = centerX + radius * Math.cos(radian);
@@ -115,25 +112,32 @@
                 
                 points.push({ x, y, angle, radian });
 
-                // Draw point
                 ctx.beginPath();
                 ctx.arc(x, y, 6, 0, 2 * Math.PI);
-                ctx.fillStyle = "#ff6363";
+                ctx.fillStyle = selectedPoint && selectedPoint.angle === angle ? "#ffcc00" : "#ff6363";
                 ctx.fill();
 
-                // Label angles
                 let radianText = `(${angle}° / ${angleToRadian(angle)})`;
                 ctx.fillStyle = "black";
                 ctx.font = "14px Arial";
                 ctx.fillText(radianText, x - 20, y - 10);
             });
+
+            if (selectedPoint) {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(selectedPoint.x, selectedPoint.y);
+                ctx.strokeStyle = "#ffcc00";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
         }
 
         function angleToRadian(angle) {
             const radiansMap = {
-                30: "π/6", 45: "π/4", 60: "π/3",
-                120: "2π/3", 135: "3π/4", 150: "5π/6",
-                210: "7π/6", 225: "5π/4", 240: "4π/3",
+                0: "0, 2π", 30: "π/6", 45: "π/4", 60: "π/3", 90: "π/2",
+                120: "2π/3", 135: "3π/4", 150: "5π/6", 180: "π",
+                210: "7π/6", 225: "5π/4", 240: "4π/3", 270: "3π/2",
                 300: "5π/3", 315: "7π/4", 330: "11π/6"
             };
             return radiansMap[angle] || "";
@@ -142,12 +146,14 @@
         function displayInfo(x, y) {
             let point = points.find(p => Math.abs(p.x - x) < 10 && Math.abs(p.y - y) < 10);
             if (point) {
+                selectedPoint = point;
                 let cos = Math.cos(point.radian).toFixed(2);
                 let sin = Math.sin(point.radian).toFixed(2);
                 document.getElementById("infoBox").innerHTML = 
-                    `🎯 <b>Angle:</b> ${point.angle}° <br> 
-                     📏 <b>Radians:</b> ${angleToRadian(point.angle)} <br> 
-                     🔵 <b>Cos:</b> ${cos} | 🔴 <b>Sin:</b> ${sin}`;
+                    ` <b>Angle:</b> ${point.angle}° <br> 
+                      <b>Radians:</b> ${angleToRadian(point.angle)} <br> 
+                      <b>Cos:</b> ${cos} |  <b>Sin:</b> ${sin}`;
+                drawCircle();
             }
         }
 

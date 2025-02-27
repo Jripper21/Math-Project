@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Unit Circle</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* Canvas Styling */
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        canvas {
+            border: 3px solid white;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Info Box Styling */
+        #infoBox {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
+            transition: 0.3s ease-in-out;
+        }
+
+        /* Hover Effects */
+        canvas:hover {
+            box-shadow: 0px 6px 15px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🌟 Interactive Unit Circle</h2>
+    <p>Click on any point to see its coordinates, angle, and radian value!</p>
+    
+    <div class="canvas-container">
+        <canvas id="unitCircleCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div id="infoBox">Click on a point to see details</div>
+
+    <script>
+        const canvas = document.getElementById("unitCircleCanvas");
+        const ctx = canvas.getContext("2d");
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 200;
+        const points = [];
+
+        // Major angles in degrees
+        const angles = [30, 45, 60, 120, 135, 150, 210, 225, 240, 300, 315, 330];
+
+        function drawCircle() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw unit circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw x and y axes
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.strokeStyle = "#555";
+            ctx.stroke();
+
+            points.length = 0; // Clear previous points
+
+            // Draw and label points
+            angles.forEach(angle => {
+                let radian = (angle * Math.PI) / 180;
+                let x = centerX + radius * Math.cos(radian);
+                let y = centerY - radius * Math.sin(radian);
+                
+                points.push({ x, y, angle, radian });
+
+                // Draw point
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fillStyle = "#ff6363";
+                ctx.fill();
+
+                // Label angles
+                let radianText = `(${angle}° / ${angleToRadian(angle)})`;
+                ctx.fillStyle = "black";
+                ctx.font = "14px Arial";
+                ctx.fillText(radianText, x - 20, y - 10);
+            });
+        }
+
+        function angleToRadian(angle) {
+            const radiansMap = {
+                30: "π/6", 45: "π/4", 60: "π/3",
+                120: "2π/3", 135: "3π/4", 150: "5π/6",
+                210: "7π/6", 225: "5π/4", 240: "4π/3",
+                300: "5π/3", 315: "7π/4", 330: "11π/6"
+            };
+            return radiansMap[angle] || "";
+        }
+
+        function displayInfo(x, y) {
+            let point = points.find(p => Math.abs(p.x - x) < 10 && Math.abs(p.y - y) < 10);
+            if (point) {
+                let cos = Math.cos(point.radian).toFixed(2);
+                let sin = Math.sin(point.radian).toFixed(2);
+                document.getElementById("infoBox").innerHTML = 
+                    `🎯 <b>Angle:</b> ${point.angle}° <br> 
+                     📏 <b>Radians:</b> ${angleToRadian(point.angle)} <br> 
+                     🔵 <b>Cos:</b> ${cos} | 🔴 <b>Sin:</b> ${sin}`;
+            }
+        }
+
+        canvas.addEventListener("click", function(event) {
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            displayInfo(x, y);
+        });
+
+        drawCircle();
+    </script>
+
+</body>
+</html>

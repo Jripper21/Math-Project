@@ -50,8 +50,33 @@
             transition: 0.3s ease-in-out;
         }
 
-        canvas:hover {
-            box-shadow: 0px 6px 15px rgba(255, 255, 255, 0.5);
+        #quizContainer, #algebraQuizContainer {
+            margin-top: 30px;
+            font-size: 18px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .hiddenButton {
+            position: absolute;
+            padding: 20px 30px;
+            background-color: rgba(255, 255, 255, 0.2);  /* Slight background color */
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: 15px;
+            opacity: 0.3;  /* Lower opacity */
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            visibility: hidden;
+        }
+
+        #linkContainer {
+            display: none;
         }
     </style>
 </head>
@@ -59,13 +84,44 @@
     <h2>Interactive Unit Circle</h2>
     <p>Click on any point to see its coordinates, angle, and radian value</p>
     
+    <!-- Unit Circle Canvas -->
     <div class="canvas-container">
         <canvas id="unitCircleCanvas" width="500" height="500"></canvas>
     </div>
 
     <div id="infoBox">Click on a point to see details</div>
 
+    <!-- Pre-Calc Math Problem Section -->
+    <div id="quizContainer">
+        <p>Solve this Pre-Calc Problem to unlock the next step:</p>
+        <p id="question">What is cos(30°)?</p>
+        <input type="number" id="userAnswer" placeholder="Enter your answer" />
+        <button onclick="checkPreCalcAnswer()">Submit Answer</button>
+        <p id="feedback"></p>
+    </div>
+
+    <!-- Algebra Problem Section -->
+    <div id="algebraQuizContainer" style="display: none;">
+        <p>Solve this Algebra Problem to unlock the website:</p>
+        <p id="algebraQuestion">What is 2x + 5 = 15, solve for x?</p>
+        <input type="number" id="algebraAnswer" placeholder="Enter your answer" />
+        <button onclick="checkAlgebraAnswer()">Submit Answer</button>
+        <p id="algebraFeedback"></p>
+    </div>
+
+    <!-- Hidden Button and Link to Website -->
+    <button id="firstButton" class="hiddenButton">Press me (Step 1)</button>
+
+    <div id="linkContainer">
+        <nav class="mainNav">
+            <ul>
+                <li><a href="Asher.html">Asher by Jackson</a></li>
+            </ul>
+        </nav>
+    </div>
+
     <script>
+        // Unit Circle Drawing
         const canvas = document.getElementById("unitCircleCanvas");
         const ctx = canvas.getContext("2d");
         const centerX = canvas.width / 2;
@@ -93,7 +149,7 @@
             ctx.strokeStyle = "#555";
             ctx.stroke();
 
-            const axisLabels = { 0: "0°, 360°", 90: "90°", 180: "180°", 270: "270°" };
+            const axisLabels = { 0: "0°, 360°", 90: "90°", 270: "270°" };
             for (let angle in axisLabels) {
                 let radian = (angle * Math.PI) / 180;
                 let x = centerX + radius * Math.cos(radian);
@@ -165,7 +221,49 @@
         });
 
         drawCircle();
-    </script>
 
+        // Pre-Calc Math Problem Section
+        let correctAnswer = Math.cos(30 * Math.PI / 180).toFixed(2);  // Cosine of 30° in decimal format
+        let isAnswerCorrect = false;
+
+        function checkPreCalcAnswer() {
+            const userAnswer = document.getElementById('userAnswer').value;
+            const feedback = document.getElementById('feedback');
+
+            if (userAnswer == correctAnswer) {
+                feedback.innerHTML = 'Correct! Now, solve the algebra problem.';
+                feedback.style.color = 'green';
+
+                // Hide the pre-calc section and show algebra problem
+                document.getElementById("quizContainer").style.display = "none";
+                document.getElementById("algebraQuizContainer").style.display = "block";
+            } else {
+                feedback.innerHTML = 'Incorrect. Try again.';
+                feedback.style.color = 'red';
+            }
+        }
+
+        // Algebra Problem Section
+        const correctAlgebraAnswer = 5;  // The correct answer for 2x + 5 = 15
+        function checkAlgebraAnswer() {
+            const algebraAnswer = document.getElementById('algebraAnswer').value;
+            const algebraFeedback = document.getElementById('algebraFeedback');
+            const linkContainer = document.getElementById('linkContainer');
+            const firstButton = document.getElementById('firstButton');
+
+            if (algebraAnswer == correctAlgebraAnswer) {
+                algebraFeedback.innerHTML = 'Correct! You can now access the website.';
+                algebraFeedback.style.color = 'green';
+
+                // Reveal the first button after answering correctly
+                firstButton.style.visibility = 'visible';
+                firstButton.style.opacity = '0.7';  // Make the button slightly visible
+                linkContainer.style.display = 'block';  // Show the link to the website
+            } else {
+                algebraFeedback.innerHTML = 'Incorrect. Try again.';
+                algebraFeedback.style.color = 'red';
+            }
+        }
+    </script>
 </body>
 </html>
